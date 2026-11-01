@@ -1,0 +1,107 @@
+{
+  "id": "com.eagle.photoshop-supreme-mcp",
+  "name": "Photoshop Supreme MCP",
+  "version": "0.2.2",
+  "main": "index.html",
+  "manifestVersion": 5,
+  "host": {
+    "app": "PS",
+    "minVersion": "24.2.0",
+    "data": {
+      "apiVersion": 2,
+      "loadEvent": "startup"
+    }
+  },
+  "icons": [
+    {
+      "width": 24,
+      "height": 24,
+      "path": "icons/plugin-dark.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "darkest",
+        "dark"
+      ],
+      "species": [
+        "pluginList"
+      ]
+    },
+    {
+      "width": 24,
+      "height": 24,
+      "path": "icons/plugin-light.png",
+      "scale": [
+        1,
+        2
+      ],
+      "theme": [
+        "light",
+        "lightest"
+      ],
+      "species": [
+        "pluginList"
+      ]
+    }
+  ],
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "supremePanel",
+      "label": {
+        "default": "Photoshop Supreme MCP"
+      },
+      "minimumSize": {
+        "width": 230,
+        "height": 140
+      },
+      "preferredDockedSize": {
+        "width": 280,
+        "height": 180
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/panel-dark.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "darkest",
+            "dark"
+          ],
+          "species": [
+            "toolbar"
+          ]
+        },
+        {
+          "width": 23,
+          "height": 23,
+          "path": "icons/panel-light.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "light",
+            "lightest"
+          ],
+          "species": [
+            "toolbar"
+          ]
+        }
+      ]
+    }
+  ],
+  "requiredPermissions": {
+    "network": {
+      "domains": "all"
+    },
+    "localFileSystem": "fullAccess",
+    "allowCodeGenerationFromStrings": true
+  }
+}
