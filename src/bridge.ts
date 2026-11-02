@@ -41,6 +41,8 @@ export class PhotoshopBridge implements Bridge {
   private pending = new Map<string, Pending>();
   private events: BridgeEvent[] = [];
   pluginInfo: Record<string, unknown> | null = null;
+  /** Optional hook: plugin connected / disconnected (used by the dashboard's connection history). */
+  onPluginEvent?: (type: 'connected' | 'disconnected', detail?: string) => void;
 
   constructor(
     readonly port: number,
@@ -88,6 +90,7 @@ export class PhotoshopBridge implements Bridge {
         this.sock = null;
         this.pluginInfo = null;
         this.rejectAll(new Error('Photoshop plugin disconnected mid-call'));
+        this.onPluginEvent?.('disconnected');
         log('plugin disconnected');
       }
     });
@@ -110,6 +113,7 @@ export class PhotoshopBridge implements Bridge {
     }
     if (msg.type === 'hello') {
       this.pluginInfo = msg.info ?? {};
+      this.onPluginEvent?.('connected', `Photoshop ${(msg.info as any)?.photoshop ?? '?'}, plugin v${(msg.info as any)?.plugin ?? '?'}`);
     } else if (msg.type === 'event') {
       this.events.push({ ts: Date.now(), event: msg.event, descriptor: msg.descriptor });
       if (this.events.length > this.maxEvents) this.events.splice(0, this.events.length - this.maxEvents);
@@ -119,7 +123,11 @@ export class PhotoshopBridge implements Bridge {
       clearTimeout(p.timer);
       this.pending.delete(msg.id);
       if (msg.ok) p.resolve(msg.data);
-      else p.reject(new Error(msg.error?.message ?? 'Unknown Photoshop error'));
+      else {
+        const err = new Error(msg.error?.message ?? 'Unknown Photoshop error');
+        (err as any).pluginStack = msg.error?.stack;
+        p.reject(err);
+      }
     }
   }
 

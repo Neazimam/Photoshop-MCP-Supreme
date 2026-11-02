@@ -6,6 +6,23 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { Bridge } from './bridge.js';
 import { registerExtras } from './extras.js';
+import { callContext } from './context.js';
+import { summarizeArgs } from './telemetry.js';
+
+export interface CallRecord {
+  client: string;
+  tool: string;
+  ms: number;
+  ok: boolean;
+  error?: string;
+  detail?: string;
+  args?: string;
+}
+export interface ToolHooks {
+  onCall?: (e: CallRecord) => void;
+}
+/** name -> description of every tool registered in this process (for the dashboard). */
+export const toolCatalog = new Map<string, { name: string; description: string; full: boolean }>();
 
 /** PS_SUPREME_MODE=safe disables every tool that executes arbitrary code (UXP, ExtendScript, saved scripts). */
 export const FULL = (process.env.PS_SUPREME_MODE ?? 'full').toLowerCase() !== 'safe';
@@ -29,21 +46,41 @@ const text = (v: unknown) => ({
   content: [{ type: 'text' as const, text: typeof v === 'string' ? v : JSON.stringify(v, null, 2) }],
 });
 
-export function registerTools(server: McpServer, bridge: Bridge): void {
+export function registerTools(server: McpServer, bridge: Bridge, hooks: ToolHooks = {}): void {
   function tool(name: string, description: string, shape: Shape, handler: (a: any) => Promise<unknown>, opts: { full?: boolean } = {}) {
     if (opts.full && !FULL) return;
+    toolCatalog.set(name, { name, description, full: !!opts.full });
     server.registerTool(
       name,
       { description, inputSchema: shape },
       (async (args: any) => {
-        try {
-          const r: any = await handler(args ?? {});
-          if (r && typeof r === 'object' && r.__content) return { content: r.__content };
-          return text(r);
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          return { isError: true, content: [{ type: 'text' as const, text: msg }] };
+        const outer = callContext.getStore();
+        let client = outer?.client;
+        if (!client) {
+          const v = (server.server as any).getClientVersion?.();
+          client = v?.name ? `${v.name}${v.version ? '/' + v.version : ''}` : 'unknown client';
         }
+        const t0 = Date.now();
+        return callContext.run({ client, tool: name }, async () => {
+          try {
+            const r: any = await handler(args ?? {});
+            hooks.onCall?.({ client: client!, tool: name, ms: Date.now() - t0, ok: true, args: summarizeArgs(args) });
+            if (r && typeof r === 'object' && r.__content) return { content: r.__content };
+            return text(r);
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            hooks.onCall?.({
+              client: client!,
+              tool: name,
+              ms: Date.now() - t0,
+              ok: false,
+              error: msg,
+              detail: (e as any)?.pluginStack ? String((e as any).pluginStack).slice(0, 600) : undefined,
+              args: summarizeArgs(args),
+            });
+            return { isError: true, content: [{ type: 'text' as const, text: msg }] };
+          }
+        });
       }) as any
     );
   }

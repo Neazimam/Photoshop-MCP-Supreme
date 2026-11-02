@@ -9357,7 +9357,7 @@ var require_extension = __commonJS({
       if (dest[name] === void 0) dest[name] = [elem];
       else dest[name].push(elem);
     }
-    function parse3(header) {
+    function parse3(header2) {
       const offers = /* @__PURE__ */ Object.create(null);
       let params = /* @__PURE__ */ Object.create(null);
       let mustUnescape = false;
@@ -9369,8 +9369,8 @@ var require_extension = __commonJS({
       let code = -1;
       let end = -1;
       let i = 0;
-      for (; i < header.length; i++) {
-        code = header.charCodeAt(i);
+      for (; i < header2.length; i++) {
+        code = header2.charCodeAt(i);
         if (extensionName === void 0) {
           if (end === -1 && tokenChars[code] === 1) {
             if (start === -1) start = i;
@@ -9381,7 +9381,7 @@ var require_extension = __commonJS({
               throw new SyntaxError(`Unexpected character at index ${i}`);
             }
             if (end === -1) end = i;
-            const name = header.slice(start, end);
+            const name = header2.slice(start, end);
             if (code === 44) {
               push(offers, name, params);
               params = /* @__PURE__ */ Object.create(null);
@@ -9402,7 +9402,7 @@ var require_extension = __commonJS({
               throw new SyntaxError(`Unexpected character at index ${i}`);
             }
             if (end === -1) end = i;
-            push(params, header.slice(start, end), true);
+            push(params, header2.slice(start, end), true);
             if (code === 44) {
               push(offers, extensionName, params);
               params = /* @__PURE__ */ Object.create(null);
@@ -9410,7 +9410,7 @@ var require_extension = __commonJS({
             }
             start = end = -1;
           } else if (code === 61 && start !== -1 && end === -1) {
-            paramName = header.slice(start, i);
+            paramName = header2.slice(start, i);
             start = end = -1;
           } else {
             throw new SyntaxError(`Unexpected character at index ${i}`);
@@ -9434,7 +9434,7 @@ var require_extension = __commonJS({
             } else {
               throw new SyntaxError(`Unexpected character at index ${i}`);
             }
-          } else if (code === 34 && header.charCodeAt(i - 1) === 61) {
+          } else if (code === 34 && header2.charCodeAt(i - 1) === 61) {
             inQuotes = true;
           } else if (end === -1 && tokenChars[code] === 1) {
             if (start === -1) start = i;
@@ -9445,7 +9445,7 @@ var require_extension = __commonJS({
               throw new SyntaxError(`Unexpected character at index ${i}`);
             }
             if (end === -1) end = i;
-            let value = header.slice(start, end);
+            let value = header2.slice(start, end);
             if (mustUnescape) {
               value = value.replace(/\\/g, "");
               mustUnescape = false;
@@ -9467,7 +9467,7 @@ var require_extension = __commonJS({
         throw new SyntaxError("Unexpected end of input");
       }
       if (end === -1) end = i;
-      const token = header.slice(start, end);
+      const token = header2.slice(start, end);
       if (extensionName === void 0) {
         push(offers, token, params);
       } else {
@@ -10518,13 +10518,13 @@ var require_subprotocol = __commonJS({
   "node_modules/ws/lib/subprotocol.js"(exports, module) {
     "use strict";
     var { tokenChars } = require_validation2();
-    function parse3(header) {
+    function parse3(header2) {
       const protocols = /* @__PURE__ */ new Set();
       let start = -1;
       let end = -1;
       let i = 0;
-      for (i; i < header.length; i++) {
-        const code = header.charCodeAt(i);
+      for (i; i < header2.length; i++) {
+        const code = header2.charCodeAt(i);
         if (end === -1 && tokenChars[code] === 1) {
           if (start === -1) start = i;
         } else if (i !== 0 && (code === 32 || code === 9)) {
@@ -10534,7 +10534,7 @@ var require_subprotocol = __commonJS({
             throw new SyntaxError(`Unexpected character at index ${i}`);
           }
           if (end === -1) end = i;
-          const protocol2 = header.slice(start, end);
+          const protocol2 = header2.slice(start, end);
           if (protocols.has(protocol2)) {
             throw new SyntaxError(`The "${protocol2}" subprotocol is duplicated`);
           }
@@ -10547,7 +10547,7 @@ var require_subprotocol = __commonJS({
       if (start === -1 || end !== -1) {
         throw new SyntaxError("Unexpected end of input");
       }
-      const protocol = header.slice(start, i);
+      const protocol = header2.slice(start, i);
       if (protocols.has(protocol)) {
         throw new SyntaxError(`The "${protocol}" subprotocol is duplicated`);
       }
@@ -10998,12 +10998,12 @@ var require_content_type = __commonJS({
       if (!string3) {
         throw new TypeError("argument string is required");
       }
-      var header = typeof string3 === "object" ? getcontenttype(string3) : string3;
-      if (typeof header !== "string") {
+      var header2 = typeof string3 === "object" ? getcontenttype(string3) : string3;
+      if (typeof header2 !== "string") {
         throw new TypeError("argument string is required to be a string");
       }
-      var index = header.indexOf(";");
-      var type = index !== -1 ? header.slice(0, index).trim() : header.trim();
+      var index = header2.indexOf(";");
+      var type = index !== -1 ? header2.slice(0, index).trim() : header2.trim();
       if (!TYPE_REGEXP.test(type)) {
         throw new TypeError("invalid media type");
       }
@@ -11013,7 +11013,7 @@ var require_content_type = __commonJS({
         var match;
         var value;
         PARAM_REGEXP.lastIndex = index;
-        while (match = PARAM_REGEXP.exec(header)) {
+        while (match = PARAM_REGEXP.exec(header2)) {
           if (match.index !== index) {
             throw new TypeError("invalid parameter format");
           }
@@ -11028,23 +11028,23 @@ var require_content_type = __commonJS({
           }
           obj.parameters[key] = value;
         }
-        if (index !== header.length) {
+        if (index !== header2.length) {
           throw new TypeError("invalid parameter format");
         }
       }
       return obj;
     }
     function getcontenttype(obj) {
-      var header;
+      var header2;
       if (typeof obj.getHeader === "function") {
-        header = obj.getHeader("content-type");
+        header2 = obj.getHeader("content-type");
       } else if (typeof obj.headers === "object") {
-        header = obj.headers && obj.headers["content-type"];
+        header2 = obj.headers && obj.headers["content-type"];
       }
-      if (typeof header !== "string") {
+      if (typeof header2 !== "string") {
         throw new TypeError("content-type header is missing from object");
       }
-      return header;
+      return header2;
     }
     function qstring(val) {
       var str = String(val);
@@ -12054,10 +12054,10 @@ function isValidJWT(jwt, alg) {
   if (!jwtRegex.test(jwt))
     return false;
   try {
-    const [header] = jwt.split(".");
-    if (!header)
+    const [header2] = jwt.split(".");
+    if (!header2)
       return false;
-    const base642 = header.replace(/-/g, "+").replace(/_/g, "/").padEnd(header.length + (4 - header.length % 4) % 4, "=");
+    const base642 = header2.replace(/-/g, "+").replace(/_/g, "/").padEnd(header2.length + (4 - header2.length % 4) % 4, "=");
     const decoded = JSON.parse(atob(base642));
     if (typeof decoded !== "object" || decoded === null)
       return false;
@@ -16653,10 +16653,10 @@ function isValidJWT2(token, algorithm = null) {
     const tokensParts = token.split(".");
     if (tokensParts.length !== 3)
       return false;
-    const [header] = tokensParts;
-    if (!header)
+    const [header2] = tokensParts;
+    if (!header2)
       return false;
-    const parsedHeader = JSON.parse(atob(header));
+    const parsedHeader = JSON.parse(atob(header2));
     if ("typ" in parsedHeader && parsedHeader?.typ !== "JWT")
       return false;
     if (!parsedHeader.alg)
@@ -25406,6 +25406,8 @@ var PhotoshopBridge = class {
   pending = /* @__PURE__ */ new Map();
   events = [];
   pluginInfo = null;
+  /** Optional hook: plugin connected / disconnected (used by the dashboard's connection history). */
+  onPluginEvent;
   start() {
     return new Promise((resolve, reject) => {
       const wss = new import_websocket_server.default({
@@ -25444,6 +25446,7 @@ var PhotoshopBridge = class {
         this.sock = null;
         this.pluginInfo = null;
         this.rejectAll(new Error("Photoshop plugin disconnected mid-call"));
+        this.onPluginEvent?.("disconnected");
         log("plugin disconnected");
       }
     });
@@ -25464,6 +25467,7 @@ var PhotoshopBridge = class {
     }
     if (msg.type === "hello") {
       this.pluginInfo = msg.info ?? {};
+      this.onPluginEvent?.("connected", `Photoshop ${msg.info?.photoshop ?? "?"}, plugin v${msg.info?.plugin ?? "?"}`);
     } else if (msg.type === "event") {
       this.events.push({ ts: Date.now(), event: msg.event, descriptor: msg.descriptor });
       if (this.events.length > this.maxEvents) this.events.splice(0, this.events.length - this.maxEvents);
@@ -25473,7 +25477,11 @@ var PhotoshopBridge = class {
       clearTimeout(p.timer);
       this.pending.delete(msg.id);
       if (msg.ok) p.resolve(msg.data);
-      else p.reject(new Error(msg.error?.message ?? "Unknown Photoshop error"));
+      else {
+        const err = new Error(msg.error?.message ?? "Unknown Photoshop error");
+        err.pluginStack = msg.error?.stack;
+        p.reject(err);
+      }
     }
   }
   call(action, params = {}, timeoutMs = 12e4) {
@@ -25503,6 +25511,10 @@ var PhotoshopBridge = class {
   }
 };
 
+// src/context.ts
+import { AsyncLocalStorage } from "node:async_hooks";
+var callContext = new AsyncLocalStorage();
+
 // src/remote.ts
 var RemoteBridge = class {
   constructor(port, base, token) {
@@ -25513,7 +25525,17 @@ var RemoteBridge = class {
   async post(path, body, timeoutMs) {
     const r = await fetch(this.base + path, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: "Bearer " + this.token },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + this.token,
+        ...(() => {
+          const c = callContext.getStore();
+          const h = {};
+          if (c?.client) h["X-PSS-Client"] = encodeURIComponent(c.client);
+          if (c?.tool) h["X-PSS-Tool"] = encodeURIComponent(c.tool);
+          return h;
+        })()
+      },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs)
     });
@@ -25534,9 +25556,9 @@ var RemoteBridge = class {
 
 // src/tools.ts
 import { randomUUID as randomUUID3 } from "node:crypto";
-import { mkdir as mkdir3, writeFile as writeFile3 } from "node:fs/promises";
+import { mkdir as mkdir4, writeFile as writeFile3 } from "node:fs/promises";
 import { tmpdir as tmpdir2 } from "node:os";
-import { join as join4 } from "node:path";
+import { join as join5 } from "node:path";
 
 // src/cookbook.ts
 var unit = (u, v) => ({ _unit: u, _value: v });
@@ -25881,27 +25903,176 @@ return { played: ctx.args.set + ' / ' + ctx.args.action };`,
   }, { full: true });
 }
 
+// src/telemetry.ts
+import { appendFile, mkdir as mkdir3, rename, stat } from "node:fs/promises";
+import { join as join4 } from "node:path";
+function hintFor(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes("plugin is not connected") || m.includes("not connected"))
+    return "Photoshop plugin is not connected. Start (or restart) Photoshop - the plugin loads at startup. Check Overview and run the self-test.";
+  if (m.includes("disconnected mid-call")) return "Photoshop closed or the plugin reloaded during the call. Retry once Photoshop is back.";
+  if (m.includes("code generation") || m.includes("evalerror") || m.includes("unsafe-eval") || m.includes("allowcodegeneration"))
+    return "The plugin manifest must allow code from strings (allowCodeGenerationFromStrings). Re-run the installer to get plugin v0.2.2+.";
+  if (m.includes("did not respond") || m.includes("timeout") || m.includes("timed out"))
+    return "Photoshop did not answer in time. A dialog may be open, or the job is long - close dialogs or raise timeout_ms.";
+  if (m.includes("modal") && (m.includes("already") || m.includes("state")))
+    return "Photoshop is busy in another modal operation or has a dialog open. Close it and retry.";
+  if (m.includes("no active document") || m.includes("no document"))
+    return "No document is open. Use ps_new_document or ps_open_document first.";
+  if (m.includes("no open document with id")) return "That document id is stale. Call ps_get_state for current ids.";
+  if (/layer \d+ not found/.test(m)) return "Layer ids change between sessions/edits. Call ps_get_state for current layer ids.";
+  if (m.includes("unauthorized")) return "Missing/incorrect bearer token. Token file: ~/.photoshop-supreme-mcp/token";
+  if (m.includes("unrecognized image") || m.includes("provide exactly one of"))
+    return "ps_place_image needs exactly one of path, url or base64 containing a real image (png, jpg, gif, webp, psd, bmp, tif).";
+  if (m.includes("extendscript") && m.includes("windows")) return "ps_run_extendscript is Windows-only; use ps_run_uxp or ps_batch_play elsewhere.";
+  if (m.includes("enoent") || m.includes("not found") || m.includes("cannot find"))
+    return "A file or object was not found. Check the path/name (use absolute paths).";
+  return void 0;
+}
+function summarizeArgs(a, max = 240) {
+  try {
+    const s = JSON.stringify(a, (_k, v) => typeof v === "string" && v.length > 80 ? v.slice(0, 60) + `\u2026(${v.length} chars)` : v);
+    return (s ?? "").slice(0, max);
+  } catch {
+    return "";
+  }
+}
+var bump = (m, name, ms, ok, ts) => {
+  const s = m.get(name) ?? { name, calls: 0, errors: 0, totalMs: 0, lastTs: 0 };
+  s.calls++;
+  if (!ok) s.errors++;
+  s.totalMs += ms;
+  s.lastTs = ts;
+  m.set(name, s);
+};
+var Telemetry = class {
+  constructor(max = 500) {
+    this.max = max;
+  }
+  startedAt = Date.now();
+  entries = [];
+  seq = 0;
+  tools = /* @__PURE__ */ new Map();
+  clients = /* @__PURE__ */ new Map();
+  minutes = /* @__PURE__ */ new Map();
+  conn = [];
+  logFile = join4(DATA_DIR, "calls.jsonl");
+  writes = 0;
+  total = { calls: 0, errors: 0, totalMs: 0 };
+  record(e) {
+    const entry = { ...e, id: ++this.seq, ts: Date.now() };
+    if (entry.error && !entry.hint) entry.hint = hintFor(entry.error);
+    this.entries.push(entry);
+    if (this.entries.length > this.max) this.entries.splice(0, this.entries.length - this.max);
+    this.total.calls++;
+    if (!entry.ok) this.total.errors++;
+    this.total.totalMs += entry.ms;
+    bump(this.tools, entry.tool, entry.ms, entry.ok, entry.ts);
+    bump(this.clients, entry.client, entry.ms, entry.ok, entry.ts);
+    const minute = Math.floor(entry.ts / 6e4);
+    const mm = this.minutes.get(minute) ?? { calls: 0, errors: 0 };
+    mm.calls++;
+    if (!entry.ok) mm.errors++;
+    this.minutes.set(minute, mm);
+    for (const k of this.minutes.keys()) if (k < minute - 180) this.minutes.delete(k);
+    void this.persist(entry);
+    return entry;
+  }
+  connection(type, detail) {
+    this.conn.push({ ts: Date.now(), type, detail });
+    if (this.conn.length > 50) this.conn.shift();
+  }
+  clear() {
+    this.entries = [];
+    this.tools.clear();
+    this.clients.clear();
+    this.minutes.clear();
+    this.total = { calls: 0, errors: 0, totalMs: 0 };
+  }
+  async persist(e) {
+    try {
+      if (this.writes++ === 0) await mkdir3(DATA_DIR, { recursive: true });
+      if (this.writes % 200 === 1) {
+        const st = await stat(this.logFile).catch(() => null);
+        if (st && st.size > 5 * 1024 * 1024) await rename(this.logFile, this.logFile + ".1");
+      }
+      await appendFile(this.logFile, JSON.stringify(e) + "\n");
+    } catch {
+    }
+  }
+  snapshot() {
+    const recent = this.entries.slice(-200);
+    const lat = recent.map((e) => e.ms).sort((a, b) => a - b);
+    const p95 = lat.length ? lat[Math.min(lat.length - 1, Math.floor(lat.length * 0.95))] : 0;
+    const nowMin = Math.floor(Date.now() / 6e4);
+    const series = [];
+    for (let i = 29; i >= 0; i--) {
+      const m = this.minutes.get(nowMin - i);
+      series.push({ t: (nowMin - i) * 6e4, calls: m?.calls ?? 0, errors: m?.errors ?? 0 });
+    }
+    const list = (m) => [...m.values()].sort((a, b) => b.calls - a.calls).map((s) => ({ name: s.name, calls: s.calls, errors: s.errors, avgMs: Math.round(s.totalMs / Math.max(1, s.calls)), lastTs: s.lastTs }));
+    return {
+      uptimeMs: Date.now() - this.startedAt,
+      summary: {
+        total: this.total.calls,
+        errors: this.total.errors,
+        ok: this.total.calls - this.total.errors,
+        avgMs: Math.round(this.total.totalMs / Math.max(1, this.total.calls)),
+        p95Ms: p95,
+        lastTs: this.entries.at(-1)?.ts ?? 0
+      },
+      series,
+      byTool: list(this.tools),
+      byClient: list(this.clients),
+      calls: [...recent].reverse(),
+      errors: this.entries.filter((e) => !e.ok).slice(-50).reverse(),
+      conn: [...this.conn].reverse().slice(0, 30)
+    };
+  }
+};
+
 // src/tools.ts
+var toolCatalog = /* @__PURE__ */ new Map();
 var FULL = (process.env.PS_SUPREME_MODE ?? "full").toLowerCase() !== "safe";
 var docId = external_exports.number().int().optional().describe("Target document id (from ps_get_state). Pins the edit so a UI tab switch cannot retarget it. Defaults to the active document.");
 var text = (v) => ({
   content: [{ type: "text", text: typeof v === "string" ? v : JSON.stringify(v, null, 2) }]
 });
-function registerTools(server, bridge) {
+function registerTools(server, bridge, hooks = {}) {
   function tool(name, description, shape, handler, opts = {}) {
     if (opts.full && !FULL) return;
+    toolCatalog.set(name, { name, description, full: !!opts.full });
     server.registerTool(
       name,
       { description, inputSchema: shape },
       async (args) => {
-        try {
-          const r = await handler(args ?? {});
-          if (r && typeof r === "object" && r.__content) return { content: r.__content };
-          return text(r);
-        } catch (e) {
-          const msg = e instanceof Error ? e.message : String(e);
-          return { isError: true, content: [{ type: "text", text: msg }] };
+        const outer = callContext.getStore();
+        let client = outer?.client;
+        if (!client) {
+          const v = server.server.getClientVersion?.();
+          client = v?.name ? `${v.name}${v.version ? "/" + v.version : ""}` : "unknown client";
         }
+        const t0 = Date.now();
+        return callContext.run({ client, tool: name }, async () => {
+          try {
+            const r = await handler(args ?? {});
+            hooks.onCall?.({ client, tool: name, ms: Date.now() - t0, ok: true, args: summarizeArgs(args) });
+            if (r && typeof r === "object" && r.__content) return { content: r.__content };
+            return text(r);
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : String(e);
+            hooks.onCall?.({
+              client,
+              tool: name,
+              ms: Date.now() - t0,
+              ok: false,
+              error: msg,
+              detail: e?.pluginStack ? String(e.pluginStack).slice(0, 600) : void 0,
+              args: summarizeArgs(args)
+            });
+            return { isError: true, content: [{ type: "text", text: msg }] };
+          }
+        });
       }
     );
   }
@@ -26249,9 +26420,9 @@ return { id: l.id, name: l.name };`,
           bytes = Buffer.from(String(a.base64).replace(/^data:[^,]*,/, "").replace(/\s+/g, ""), "base64");
         }
         if (bytes.length === 0 || bytes.length > MAX_IMAGE_BYTES) throw new Error("Image empty or larger than 50 MB");
-        const dir = join4(tmpdir2(), "photoshop-supreme");
-        await mkdir3(dir, { recursive: true });
-        file = join4(dir, randomUUID3() + "." + sniffExt(bytes));
+        const dir = join5(tmpdir2(), "photoshop-supreme");
+        await mkdir4(dir, { recursive: true });
+        file = join5(dir, randomUUID3() + "." + sniffExt(bytes));
         await writeFile3(file, bytes);
       }
       return js(
@@ -26324,6 +26495,7 @@ return { filled: true };`,
 // src/daemon.ts
 import { createServer as createServer2 } from "node:http";
 import { timingSafeEqual } from "node:crypto";
+import { join as join7 } from "node:path";
 
 // node_modules/@hono/node-server/dist/constants-BLSFu_RU.mjs
 var X_ALREADY_SENT = "x-hono-already-sent";
@@ -27231,8 +27403,8 @@ var writeDefaultHeaders = (outgoing, status, length) => {
   });
 };
 var responseViaCache = async (res, outgoing) => {
-  let [status, body, header] = res[cacheKey];
-  if (!header) {
+  let [status, body, header2] = res[cacheKey];
+  if (!header2) {
     if (body === null) {
       outgoing.writeHead(status);
       outgoing.end();
@@ -27256,16 +27428,16 @@ var responseViaCache = async (res, outgoing) => {
   let hasContentLength = false;
   let plainHeaders = false;
   let canAutoLength = true;
-  if (header instanceof Headers) {
-    hasContentLength = header.has("content-length");
-    header = buildOutgoingHttpHeaders(header, body === null ? void 0 : defaultContentType);
-  } else if (Array.isArray(header)) {
-    const headerObj = new Headers(header);
+  if (header2 instanceof Headers) {
+    hasContentLength = header2.has("content-length");
+    header2 = buildOutgoingHttpHeaders(header2, body === null ? void 0 : defaultContentType);
+  } else if (Array.isArray(header2)) {
+    const headerObj = new Headers(header2);
     hasContentLength = headerObj.has("content-length");
-    header = buildOutgoingHttpHeaders(headerObj, body === null ? void 0 : defaultContentType);
+    header2 = buildOutgoingHttpHeaders(headerObj, body === null ? void 0 : defaultContentType);
   } else {
     plainHeaders = true;
-    for (const key in header) {
+    for (const key in header2) {
       if (key.length === 14 && key.toLowerCase() === "content-length") {
         hasContentLength = true;
         break;
@@ -27279,11 +27451,11 @@ var responseViaCache = async (res, outgoing) => {
     else if (body instanceof Uint8Array) length = body.byteLength;
     else if (body instanceof Blob) length = body.size;
     if (length !== void 0 && (!plainHeaders || !canAutoLength || !trySetContentLength(outgoing, status, length))) {
-      if (plainHeaders) header = { ...header };
-      header["Content-Length"] = length;
+      if (plainHeaders) header2 = { ...header2 };
+      header2["Content-Length"] = length;
     }
   }
-  outgoing.writeHead(status, header);
+  outgoing.writeHead(status, header2);
   if (body == null) outgoing.end();
   else if (typeof body === "string" || body instanceof Uint8Array) outgoing.end(body);
   else if (body instanceof Blob) outgoing.end(new Uint8Array(await body.arrayBuffer()));
@@ -27523,25 +27695,25 @@ var upgradeWebSocket = defineWebSocketHelper(async (c, events, options) => {
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/mediaType.js
 var import_content_type = __toESM(require_content_type(), 1);
-function mediaTypeEssence(header) {
-  if (!header) {
+function mediaTypeEssence(header2) {
+  if (!header2) {
     return void 0;
   }
   try {
-    return import_content_type.default.parse(header).type;
+    return import_content_type.default.parse(header2).type;
   } catch {
-    const essence = (header.split(";", 1)[0] ?? "").trim().toLowerCase();
-    if (essence === "" || header.slice(essence.length).includes(",")) {
+    const essence = (header2.split(";", 1)[0] ?? "").trim().toLowerCase();
+    if (essence === "" || header2.slice(essence.length).includes(",")) {
       return void 0;
     }
     return essence;
   }
 }
-function isJsonContentType(header) {
-  if (header === "application/json") {
+function isJsonContentType(header2) {
+  if (header2 === "application/json") {
     return true;
   }
-  return mediaTypeEssence(header) === "application/json";
+  return mediaTypeEssence(header2) === "application/json";
 }
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/requestBody.js
@@ -28450,64 +28622,325 @@ var SERVER_INFO = { name: "photoshop-supreme-mcp", version: "0.3.0" };
 var INSTRUCTIONS = `Photoshop Supreme MCP \u2014 full control of Adobe Photoshop through a UXP plugin.
 Workflow: (1) ps_status to confirm the plugin is connected. (2) ps_get_state before editing; pass document_id on mutating calls so a tab switch cannot retarget them. (3) Prefer typed tools (ps_create_layer, ps_place_image, ps_set_layer_props, ...). (4) For anything else use ps_batch_play (raw ActionDescriptors \u2014 anything the Photoshop UI can do) or ps_run_uxp (arbitrary UXP JavaScript with the full DOM). (5) To discover the right descriptor for a feature, ps_record_start, do it by hand in Photoshop, then ps_record_stop. (6) Verify visually with ps_preview. NOT SURE how to do something? ps_cookbook, then ps_inspect (explore the live API), then ps_record_* (learn descriptors from a manual action). Take a ps_snapshot before risky experiments. Save working code with ps_save_script and re-run via ps_run_script. Legacy-only features: ps_run_extendscript (Windows). Every mutating call is one undo step. To push an image into Photoshop use ps_place_image with a file path, URL, or (small) base64.`;
 
-// src/dashboard.ts
-function dashboardHtml(token, httpPort, bridgePort) {
-  const css = `
-:root{--bg:#fff;--fg:#1d1d1f;--mut:#6e6e73;--card:#f5f5f7;--line:#d2d2d7;--ok:#1a7f37;--bad:#c62828;--acc:#0a66c2}
-@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#f5f5f7;--mut:#a1a1a6;--card:#222225;--line:#3a3a3e;--ok:#3fb950;--bad:#ff6b6b;--acc:#4da3ff}}
-*{box-sizing:border-box}body{margin:0;font:14px/1.5 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--fg)}
-main{max-width:860px;margin:0 auto;padding:24px 16px 48px}h1{font-size:20px;margin:0 0 4px}h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:24px 0 8px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
-.row{display:flex;align-items:center;gap:10px;padding:4px 0}.dot{width:10px;height:10px;border-radius:50%;background:var(--bad);flex:none}.dot.ok{background:var(--ok)}
-.mut{color:var(--mut)}button{font:inherit;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}button:hover{border-color:var(--acc)}
-pre{margin:0;white-space:pre-wrap;word-break:break-all;font:12px/1.5 ui-monospace,Consolas,monospace}
-ul{margin:6px 0 0;padding-left:20px}#layers{max-height:300px;overflow:auto;font:12px/1.6 ui-monospace,Consolas,monospace}
-img{max-width:100%;border-radius:8px;border:1px solid var(--line);margin-top:10px}#help li{margin:4px 0}`;
-  const js = `
-var T=${JSON.stringify(token)};
-function api(p,b){return fetch(p,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+T},body:JSON.stringify(b||{})}).then(function(r){return r.json()});}
-function $(id){return document.getElementById(id)}
-function setDot(id,on){$(id).className='dot'+(on?' ok':'')}
-function tree(layers,depth,out){(layers||[]).forEach(function(l){out.push(new Array(depth+1).join('  ')+(l.layers?'[+] ':'- ')+l.name+'  (#'+l.id+', '+l.kind+(l.visible?'':', hidden')+')');if(l.layers)tree(l.layers,depth+1,out)});return out}
-var busy=false;
-function tick(){
-  if(busy)return;busy=true;
-  api('/status').then(function(s){
-    var d=s.data||{};setDot('d1',true);setDot('d2',!!d.connected);
-    $('plug').textContent=d.connected?('connected - Photoshop '+((d.pluginInfo||{}).photoshop||'?')+', plugin v'+((d.pluginInfo||{}).plugin||'?')):'not connected';
-    $('help').style.display=d.connected?'none':'block';
-    $('docs').style.display=d.connected?'block':'none';
-    if(!d.connected)return;
-    return api('/rpc',{action:'get_state',params:{depth:3}}).then(function(r){
-      if(!r.ok){$('doc').textContent=r.error;return}
-      var st=r.data,doc=st.document;
-      $('doc').textContent=doc?(doc.title+' - '+doc.width+' x '+doc.height+' px, '+doc.mode+', '+st.documents.length+' open'):'No document open';
-      $('layers').textContent=doc?tree(st.layers,0,[]).join('\\n'):'';
-    });
-  }).catch(function(){setDot('d1',false);setDot('d2',false);$('plug').textContent='daemon unreachable'}).then(function(){busy=false});
+// src/clientconfigs.ts
+import { platform } from "node:os";
+var win = platform() === "win32";
+var mac = platform() === "darwin";
+var J = (o) => JSON.stringify(o, null, 2);
+var q = (s) => `"${s.replace(/"/g, '\\"')}"`;
+function buildClientConfigs(node, script, httpPort) {
+  const stdio = { command: node, args: [script] };
+  const url = `http://127.0.0.1:${httpPort}/mcp`;
+  const bearer = { Authorization: "Bearer __TOKEN__" };
+  const home = win ? "%USERPROFILE%" : "~";
+  return [
+    {
+      id: "claude-desktop",
+      title: "Claude Desktop",
+      where: win ? "%APPDATA%\\Claude\\claude_desktop_config.json" : mac ? "~/Library/Application Support/Claude/claude_desktop_config.json" : "~/.config/Claude/claude_desktop_config.json",
+      lang: "json",
+      text: J({ mcpServers: { "photoshop-supreme": stdio } }),
+      note: 'The installer already does this. Merge into your existing "mcpServers" and fully restart Claude Desktop (quit from the tray).'
+    },
+    {
+      id: "claude-code",
+      title: "Claude Code (CLI)",
+      where: "run once in a terminal",
+      lang: "shell",
+      text: `claude mcp add photoshop-supreme -- ${q(node)} ${q(script)}
+
+# or over HTTP (shares this daemon):
+claude mcp add --transport http photoshop-supreme ${url} --header "Authorization: Bearer __TOKEN__"`
+    },
+    {
+      id: "cursor",
+      title: "Cursor",
+      where: `${home}${win ? "\\.cursor\\mcp.json" : "/.cursor/mcp.json"}  (or Settings > MCP)`,
+      lang: "json",
+      text: J({ mcpServers: { "photoshop-supreme": stdio } }),
+      note: 'The installer already does this. HTTP alternative: { "url": "' + url + '", "headers": { "Authorization": "Bearer <token>" } }'
+    },
+    {
+      id: "vscode",
+      title: "VS Code (Copilot Agent mode)",
+      where: '.vscode/mcp.json in your workspace (or "MCP: Open User Configuration")',
+      lang: "json",
+      text: J({ servers: { "photoshop-supreme": { type: "stdio", command: node, args: [script] } } })
+    },
+    {
+      id: "windsurf",
+      title: "Windsurf",
+      where: `${home}${win ? "\\.codeium\\windsurf\\mcp_config.json" : "/.codeium/windsurf/mcp_config.json"}`,
+      lang: "json",
+      text: J({ mcpServers: { "photoshop-supreme": stdio } })
+    },
+    {
+      id: "cline",
+      title: "Cline / Roo Code",
+      where: "Cline panel > MCP Servers > Configure (cline_mcp_settings.json)",
+      lang: "json",
+      text: J({ mcpServers: { "photoshop-supreme": { ...stdio, disabled: false, autoApprove: [] } } })
+    },
+    {
+      id: "gemini-cli",
+      title: "Gemini CLI",
+      where: `${home}${win ? "\\.gemini\\settings.json" : "/.gemini/settings.json"}`,
+      lang: "json",
+      text: J({ mcpServers: { "photoshop-supreme": stdio } })
+    },
+    {
+      id: "codex",
+      title: "OpenAI Codex CLI",
+      where: `${home}${win ? "\\.codex\\config.toml" : "/.codex/config.toml"}`,
+      lang: "toml",
+      text: `[mcp_servers.photoshop-supreme]
+command = ${JSON.stringify(node)}
+args = [${JSON.stringify(script)}]`
+    },
+    {
+      id: "http",
+      title: "Any client with HTTP MCP support",
+      where: `client's "remote / streamable HTTP" server setting`,
+      lang: "text",
+      text: `URL:     ${url}
+Header:  Authorization: Bearer __TOKEN__
+Transport: Streamable HTTP (stateless)`,
+      note: "Only reachable from this computer (127.0.0.1). Token file: ~/.photoshop-supreme-mcp/token"
+    },
+    {
+      id: "chatgpt",
+      title: "ChatGPT",
+      where: "Settings > Apps & Connectors > Advanced > Developer mode > create connector",
+      lang: "text",
+      text: `ChatGPT cannot start local (stdio) MCP servers and cannot reach 127.0.0.1.
+It only connects to REMOTE servers over HTTPS (developer mode, paid plans; write tools may be plan-limited).
+
+To use it you would have to publish this daemon's endpoint (${url}) at a public https:// address yourself and secure it.
+That exposes Photoshop and your files to the internet - NOT recommended and not set up by the installer.
+A static bearer header may not be supported by ChatGPT connectors (they use OAuth / no-auth); I could not verify this.
+Safer: use Claude Desktop, Claude Code, Cursor, VS Code or Codex CLI above.`,
+      note: `Details change often - check OpenAI's "Developer mode and MCP apps in ChatGPT" help article.`
+    }
+  ];
 }
-function preview(){$('pv').textContent='Rendering...';api('/rpc',{action:'preview',params:{max_dim:900}}).then(function(r){
-  if(!r.ok){$('pv').textContent=r.error;return}$('pv').textContent='';var i=new Image();i.src='data:'+r.data.mimeType+';base64,'+r.data.data;$('pv').appendChild(i)})}
-function copyCfg(){var t=$('cfg').textContent;navigator.clipboard&&navigator.clipboard.writeText(t);$('cp').textContent='Copied'}
-tick();setInterval(tick,2500);
-$('pvb').onclick=preview;$('cp').onclick=copyCfg;`;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Photoshop Supreme MCP</title><style>${css}</style></head><body><main>
-<h1>Photoshop Supreme MCP</h1><div class="mut">Local control panel &middot; daemon 127.0.0.1:${httpPort} &middot; plugin bridge ws://127.0.0.1:${bridgePort}</div>
-<h2>Status</h2><div class="card">
-<div class="row"><span class="dot" id="d1"></span><b>Daemon</b><span class="mut">running</span></div>
-<div class="row"><span class="dot" id="d2"></span><b>Photoshop plugin</b><span class="mut" id="plug">checking...</span></div></div>
-<div id="help" style="display:none"><h2>Photoshop plugin not connected</h2><div class="card"><ol>
-<li>The plugin loads automatically when Photoshop starts - <b>restart Photoshop once</b> after installing. (Photoshop 2023 / 24.2 or newer is required.)</li>
-<li>Still not connected? Check that <code>%APPDATA%\\Adobe\\UXP\\Plugins\\External\\com.eagle.photoshop-supreme-mcp_*</code> exists and that <code>%APPDATA%\\Adobe\\UXP\\PluginsInfo\\v1\\PS.json</code> lists <code>com.eagle.photoshop-supreme-mcp</code>. If not, run the installer again; its log is <code>%LOCALAPPDATA%\\PhotoshopSupremeMCP\\install.log</code>.</li>
-<li>Installed but Photoshop's Plugins menu is empty? Run <code>PhotoshopSupremeMCP-Setup.exe --use-cc</code> to install through Creative Cloud instead, or load <code>plugin\\manifest.json</code> with UXP Developer Tool.</li>
-<li>Panel says <i>Cannot reach 127.0.0.1:${bridgePort}</i>? Something else is using that port or the daemon is not running - re-run the installer.</li></ol></div></div>
-<div id="docs" style="display:none"><h2>Active document</h2><div class="card"><div id="doc" class="mut"></div><div id="layers" style="margin-top:8px"></div>
-<div style="margin-top:10px"><button id="pvb">Refresh preview</button></div><div id="pv"></div></div></div>
-<h2>Connect an AI app</h2><div class="card"><div class="mut">The installer already did this for Claude Desktop and Cursor. For other stdio clients use:</div>
-<pre id="cfg" style="margin:8px 0">{ "mcpServers": { "photoshop-supreme": { "command": "node", "args": ["&lt;install dir&gt;\\\\server\\\\supreme.mjs"] } } }</pre>
-<button id="cp">Copy</button>
-<div class="mut" style="margin-top:10px">HTTP clients: POST http://127.0.0.1:${httpPort}/mcp with header <code>Authorization: Bearer &lt;token&gt;</code> (token file: <code>%USERPROFILE%\\.photoshop-supreme-mcp\\token</code>).</div></div>
-<script>${js}</script></main></body></html>`;
+
+// src/hosts.ts
+import { existsSync as existsSync2, readFileSync as readFileSync2, readdirSync } from "node:fs";
+import { homedir as homedir2, platform as platform2 } from "node:os";
+import { join as join6 } from "node:path";
+var KEY = "photoshop-supreme";
+function claudeDirs() {
+  const out = [];
+  if (platform2() === "win32") {
+    if (process.env.APPDATA) out.push(join6(process.env.APPDATA, "Claude"));
+    const pk = join6(process.env.LOCALAPPDATA ?? "", "Packages");
+    if (process.env.LOCALAPPDATA && existsSync2(pk)) {
+      for (const d of readdirSync(pk)) if (/^Claude_/i.test(d)) out.push(join6(pk, d, "LocalCache", "Roaming", "Claude"));
+    }
+  } else if (platform2() === "darwin") out.push(join6(homedir2(), "Library", "Application Support", "Claude"));
+  else out.push(join6(homedir2(), ".config", "Claude"));
+  return out;
+}
+function detectHosts() {
+  const targets = [
+    ...claudeDirs().map((d) => ({ name: "Claude Desktop", dir: d, file: join6(d, "claude_desktop_config.json") })),
+    { name: "Cursor", dir: join6(homedir2(), ".cursor"), file: join6(homedir2(), ".cursor", "mcp.json") }
+  ];
+  return targets.map((t) => {
+    if (!existsSync2(t.dir)) return { name: t.name, file: t.file, state: "not-installed" };
+    if (!existsSync2(t.file)) return { name: t.name, file: t.file, state: "not-configured" };
+    try {
+      const cfg = JSON.parse(readFileSync2(t.file, "utf8") || "{}");
+      const e = cfg?.mcpServers?.[KEY];
+      if (!e) return { name: t.name, file: t.file, state: "not-configured" };
+      return { name: t.name, file: t.file, state: existsSync2(e.command) ? "configured" : "node-missing" };
+    } catch {
+      return { name: t.name, file: t.file, state: "unreadable" };
+    }
+  });
+}
+
+// src/dashboard.ts
+var CSS = String.raw`
+:root{--bg:#fff;--fg:#1d1d1f;--mut:#6e6e73;--card:#f5f5f7;--line:#d2d2d7;--ok:#1a7f37;--bad:#c62828;--warn:#b26a00;--acc:#0a66c2;--code:#ececf0}
+@media (prefers-color-scheme:dark){:root{--bg:#161618;--fg:#f5f5f7;--mut:#a1a1a6;--card:#222225;--line:#3a3a3e;--ok:#3fb950;--bad:#ff6b6b;--warn:#e3a03b;--acc:#4da3ff;--code:#2b2b2f}}
+*{box-sizing:border-box}body{margin:0;font:14px/1.5 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--fg)}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:16px 20px 8px;max-width:1100px;margin:0 auto}
+h1{font-size:20px;margin:0}h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 8px}
+.mut{color:var(--mut)}.sm{font-size:12px}nav{display:flex;gap:4px;flex-wrap:wrap;padding:0 20px;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--line)}
+nav button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 12px;color:var(--mut)}nav button.on{color:var(--fg);border-bottom-color:var(--acc)}
+main{max-width:1100px;margin:0 auto;padding:16px 20px 60px}section[hidden]{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:12px}.grid .card{margin:0}
+.big{font-size:22px;font-weight:600}.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}.two .card{margin:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bad);margin-right:6px}.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px;margin-left:6px;background:var(--card);font-size:12px}
+button{font:inherit;padding:5px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}button:hover{border-color:var(--acc)}
+input[type=text],select{font:inherit;padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12px;color:var(--mut);font-weight:500}
+tr.row{cursor:pointer}tr.row:hover{background:var(--code)}td.num,th.num{text-align:right;white-space:nowrap}
+.badge{font-size:11px;border-radius:6px;padding:1px 6px;border:1px solid var(--line)}.badge.ok{color:var(--ok);border-color:var(--ok)}.badge.bad{color:var(--bad);border-color:var(--bad)}.badge.warn{color:var(--warn);border-color:var(--warn)}
+pre{margin:6px 0;padding:8px 10px;background:var(--code);border-radius:8px;white-space:pre-wrap;word-break:break-all;font:12px/1.5 ui-monospace,Consolas,monospace;max-height:340px;overflow:auto}
+.attn{border-left:4px solid var(--ok);padding:8px 12px;margin:0 0 8px;background:var(--card);border-radius:6px}.attn.bad{border-color:var(--bad)}.attn.warn{border-color:var(--warn)}.attn.info{border-color:var(--acc)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}.chips button.on{border-color:var(--acc);color:var(--acc)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.kv{display:grid;grid-template-columns:150px 1fr;gap:2px 12px}.kv div:nth-child(odd){color:var(--mut)}
+img{max-width:100%;border-radius:8px;border:1px solid var(--line);margin-top:10px}#layers{max-height:240px;overflow:auto}
+`;
+var BODY = `
+<header><div><h1>Photoshop Supreme MCP <span class="mut sm" id="ver"></span></h1><div class="mut sm" id="sub"></div></div><div id="pills"></div></header>
+<nav id="tabs"></nav>
+<main>
+<section id="t-overview">
+  <div id="attn"></div>
+  <div class="grid" id="cards"></div>
+  <div class="two"><div class="card"><h3>Calls per minute (last 30 min)</h3><div id="chart"></div></div>
+    <div class="card"><h3>Active document</h3><div id="doc" class="mut"></div><pre id="layers" hidden></pre><button id="pvb">Refresh preview</button><div id="pv"></div></div></div>
+  <div class="two" style="margin-top:12px"><div class="card"><h3>Who is calling</h3><div id="byclient"></div></div>
+    <div class="card"><h3>Busiest tools</h3><div id="bytool"></div></div></div>
+</section>
+<section id="t-calls" hidden>
+  <div class="tools"><input type="text" id="q" placeholder="Filter tool / client / text..." size="28"><select id="cf"></select>
+    <label><input type="checkbox" id="eo"> errors only</label><button id="dl">Download JSON</button><button id="clr">Clear history</button>
+    <span class="mut sm" id="callnote"></span></div>
+  <div class="card" style="padding:4px 8px"><table><thead><tr><th>Time</th><th>Client</th><th>Tool</th><th class="num">Duration</th><th>Result</th></tr></thead><tbody id="calls"></tbody></table></div>
+</section>
+<section id="t-errors" hidden><div id="errsum"></div><div id="errlist"></div></section>
+<section id="t-connect" hidden>
+  <div class="card"><h3>Detected AI apps</h3><div id="hosts"></div></div>
+  <div class="card"><h3>Add Photoshop Supreme MCP to an AI app</h3>
+    <div class="mut sm">Values below use the exact Node.js and server paths this daemon is running from.</div>
+    <div class="chips" id="clients"></div><div id="cfg"></div>
+    <label class="sm"><input type="checkbox" id="rev"> show real token in snippets (Copy always copies the real token)</label></div>
+</section>
+<section id="t-tools" hidden><div class="tools"><input type="text" id="tq" placeholder="Filter tools..." size="28"><span class="mut sm" id="toolnote"></span></div>
+  <div class="card" style="padding:4px 8px"><table><thead><tr><th>Tool</th><th>What it does</th><th class="num">Calls</th><th class="num">Errors</th><th class="num">Avg</th></tr></thead><tbody id="toolrows"></tbody></table></div></section>
+<section id="t-diag" hidden>
+  <div class="card"><h3>Self-test</h3><div class="mut sm" style="margin-bottom:8px">Checks the whole chain: plugin link, speed, script permission, modal rights.</div><button id="st">Run self-test</button><div id="stout" style="margin-top:10px"></div></div>
+  <div class="two"><div class="card"><h3>Environment</h3><div class="kv" id="env"></div></div>
+    <div class="card"><h3>Plugin connection history</h3><div id="conn"></div></div></div>
+</section>
+</main>`;
+var JS = String.raw`
+var T="__TOKEN__";var S=null,CFG=null;
+var st={tab:'overview',open:{},client:'claude-desktop'};
+var TABS=[['overview','Overview'],['calls','Calls'],['errors','Errors'],['connect','Connect AI apps'],['tools','Tools'],['diag','Diagnostics']];
+function $(i){return document.getElementById(i)}
+function el(tag,props,kids){var e=document.createElement(tag);if(props)for(var k in props){if(k==='class')e.className=props[k];else if(k==='text')e.textContent=props[k];else if(k.slice(0,2)==='on')e[k]=props[k];else e.setAttribute(k,props[k])}(kids||[]).forEach(function(c){if(c==null)return;e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
+function put(id,kids){var n=$(id);while(n.firstChild)n.removeChild(n.firstChild);(kids||[]).forEach(function(k){if(k!=null)n.appendChild(typeof k==='string'?document.createTextNode(k):k)});return n}
+function api(p,b){return fetch(p,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+T},body:JSON.stringify(b||{})}).then(function(r){return r.json()})}
+function dur(ms){return ms<1000?ms+' ms':(ms/1000).toFixed(1)+' s'}
+function clock(ts){return new Date(ts).toLocaleTimeString()}
+function ago(ts){if(!ts)return 'never';var s=Math.round((Date.now()-ts)/1000);if(s<5)return 'just now';if(s<60)return s+'s ago';if(s<3600)return Math.round(s/60)+' min ago';return Math.round(s/3600)+' h ago'}
+function upt(ms){var s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?h+'h '+m+'m':m?m+'m '+(s%60)+'s':s+'s'}
+function badge(t,c){return el('span',{class:'badge '+c,text:t})}
+function dot(c){return el('span',{class:'dot '+(c||'')})}
+function table(head,rows,numCols){return el('table',{},[el('thead',{},[el('tr',{},head.map(function(h,i){return el('th',{class:numCols&&numCols.indexOf(i)>=0?'num':'',text:h})}))]),el('tbody',{},rows.map(function(r){return el('tr',{},r.map(function(c,i){return el('td',{class:numCols&&numCols.indexOf(i)>=0?'num':''},[c])}))}))])}
+function copyText(t,btn){function done(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},1500)}function fb(){var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}document.body.removeChild(ta);done()}
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done,fb);else fb()}
+
+/* ---------- tabs ---------- */
+function buildTabs(){put('tabs',TABS.map(function(t){return el('button',{class:t[0]===st.tab?'on':'',onclick:function(){st.tab=t[0];showTab()}},[t[1]])}))}
+function showTab(){TABS.forEach(function(t){$('t-'+t[0]).hidden=t[0]!==st.tab});buildTabs();render()}
+
+/* ---------- overview ---------- */
+function attention(s){var a=[];
+ if(!s.status.connected)a.push(['bad','Photoshop plugin is not connected.','Restart Photoshop once (the plugin loads at startup). Then open Diagnostics and run the self-test. Install log: %LOCALAPPDATA%\\PhotoshopSupremeMCP\\install.log']);
+ s.hosts.forEach(function(h){if(h.state==='not-configured')a.push(['warn',h.name+' is installed but not set up for this MCP.','Re-run the installer, or use the Connect AI apps tab.']);
+  if(h.state==='node-missing')a.push(['bad',h.name+' points to a Node.js that no longer exists.','Re-run the installer.']);
+  if(h.state==='unreadable')a.push(['warn',h.name+' config file could not be read.','Check it is valid JSON: '+h.file])});
+ var recent=s.errors.filter(function(e){return Date.now()-e.ts<600000});
+ if(recent.length)a.push(['warn',recent.length+' failed call(s) in the last 10 minutes.','Open the Errors tab for causes and fixes.']);
+ if(s.env.mode==='safe')a.push(['info','Safe mode is on.','Code-execution tools (ps_run_uxp, ps_inspect, ps_run_extendscript, saved scripts) are hidden.']);
+ if(s.summary.total===0&&s.status.connected)a.push(['info','No AI app has called a tool yet.','Open your AI app and ask it to run ps_status.']);
+ if(!a.length)a.push(['ok','Everything looks healthy.','']);
+ return a}
+function card(label,val,sub,color){return el('div',{class:'card'},[el('div',{class:'mut sm',text:label}),el('div',{class:'big',text:val,style:color?'color:var(--'+color+')':''}),sub?el('div',{class:'mut sm',text:sub}):null])}
+function chart(series){var W=300,H=64,max=1;series.forEach(function(p){if(p.calls>max)max=p.calls});var ns='http://www.w3.org/2000/svg';var svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 '+W+' '+(H+14));svg.setAttribute('width','100%');
+ series.forEach(function(p,i){var x=i*10+1,h=Math.round((p.calls-p.errors)/max*H),eh=Math.round(p.errors/max*H);
+  function rect(y,hh,col){var r=document.createElementNS(ns,'rect');r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',8);r.setAttribute('height',Math.max(hh,0));r.setAttribute('fill',col);r.setAttribute('rx',1);var t=document.createElementNS(ns,'title');t.textContent=new Date(p.t).toLocaleTimeString()+': '+p.calls+' call(s), '+p.errors+' error(s)';r.appendChild(t);svg.appendChild(r)}
+  rect(H-h,h,'#0a66c2');rect(H-h-eh,eh,'#c62828');if(!p.calls)rect(H-1,1,'#8884')});
+ var l=document.createElementNS(ns,'text');l.setAttribute('x',0);l.setAttribute('y',H+11);l.setAttribute('font-size',9);l.setAttribute('fill','#888');l.textContent='30 min ago';svg.appendChild(l);
+ var r=document.createElementNS(ns,'text');r.setAttribute('x',W);r.setAttribute('y',H+11);r.setAttribute('font-size',9);r.setAttribute('fill','#888');r.setAttribute('text-anchor','end');r.textContent='now (peak '+max+'/min)';svg.appendChild(r);return svg}
+function statTable(list,empty){if(!list.length)return el('div',{class:'mut',text:empty});return table(['Name','Calls','Errors','Avg','Last'],list.slice(0,8).map(function(x){return [x.name,String(x.calls),x.errors?badge(String(x.errors),'bad'):'0',dur(x.avgMs),ago(x.lastTs)]}),[1,2,3])}
+function renderOverview(s){
+ put('attn',attention(s).map(function(a){return el('div',{class:'attn '+a[0]},[el('b',{text:a[1]}),a[2]?el('div',{class:'mut sm',text:a[2]}):null])}));
+ var p=s.status.pluginInfo||{},sm=s.summary,rate=sm.total?Math.round(sm.ok/sm.total*100)+'%':'-';
+ put('cards',[card('Photoshop plugin',s.status.connected?'Connected':'Offline',s.status.connected?('Photoshop '+(p.photoshop||'?')+' / plugin v'+(p.plugin||'?')):'waiting for Photoshop',s.status.connected?'ok':'bad'),
+  card('Total calls',String(sm.total),'last: '+ago(sm.lastTs)),card('Success rate',rate,sm.errors+' error(s)',sm.errors?'warn':null),
+  card('Avg latency',dur(sm.avgMs),'p95 '+dur(sm.p95Ms)),card('Daemon uptime',upt(s.uptimeMs),'pid '+s.env.pid)]);
+ put('chart',[chart(s.series)]);put('byclient',[statTable(s.byClient,'No callers yet.')]);put('bytool',[statTable(s.byTool,'No calls yet.')])}
+function pollDoc(){if(!S||!S.status.connected){put('doc',['Plugin not connected.']);$('layers').hidden=true;return}
+ api('/api/state').then(function(r){if(!r.ok){put('doc',[r.error||'error']);return}var d=r.data,doc=d.document;
+  put('doc',[doc?(doc.title+' - '+doc.width+' x '+doc.height+' px, '+doc.mode+' ('+d.documents.length+' open)'):'No document open']);
+  var out=[];(function walk(ls,dep){(ls||[]).forEach(function(l){out.push(new Array(dep+1).join('  ')+(l.layers?'[+] ':'- ')+l.name+'  (#'+l.id+', '+l.kind+(l.visible?'':', hidden')+')');if(l.layers)walk(l.layers,dep+1)})})(d.layers,0);
+  $('layers').textContent=out.join('\n');$('layers').hidden=!doc}).catch(function(){})}
+
+/* ---------- calls ---------- */
+function renderCalls(s){
+ var q=$('q').value.toLowerCase(),eo=$('eo').checked,cf=$('cf').value;
+ var cl=$('cf');var names=s.byClient.map(function(c){return c.name});
+ if(cl.options.length!==names.length+1||names.some(function(n,i){return cl.options[i+1].value!==n})){var cur=cl.value;put('cf',[el('option',{value:'',text:'all clients'})].concat(names.map(function(n){return el('option',{value:n,text:n})})));cl.value=cur}
+ var rows=s.calls.filter(function(c){if(eo&&c.ok)return false;if(cf&&c.client!==cf)return false;if(q&&(c.tool+' '+c.client+' '+(c.args||'')+' '+(c.error||'')).toLowerCase().indexOf(q)<0)return false;return true});
+ $('callnote').textContent='showing '+rows.length+' of last '+s.calls.length+' (full audit log on disk: '+s.env.auditLog+')';
+ var body=[];
+ rows.forEach(function(c){var open=!!st.open[c.id];
+  body.push(el('tr',{class:'row',onclick:function(){st.open[c.id]=!st.open[c.id];renderCalls(S)}},[el('td',{text:clock(c.ts)}),el('td',{text:c.client}),el('td',{text:c.tool}),el('td',{class:'num',text:dur(c.ms)}),el('td',{},[c.ok?badge('ok','ok'):badge('error','bad')])]));
+  if(open){var kv=[['Source',c.source],['When',new Date(c.ts).toLocaleString()],['Arguments',c.args||'-']];
+   var box=el('div',{class:'kv'},[]);kv.forEach(function(x){box.appendChild(el('div',{text:x[0]}));box.appendChild(el('div',{text:x[1],style:'word-break:break-all'}))});
+   var det=[box];if(c.error){det.push(el('pre',{text:c.error}))}if(c.hint){det.push(el('div',{class:'attn warn'},[el('b',{text:'Fix: '}),c.hint]))}if(c.detail){det.push(el('pre',{text:c.detail}))}
+   body.push(el('tr',{},[el('td',{colspan:'5'},det)]))}});
+ put('calls',body)}
+
+/* ---------- errors ---------- */
+function renderErrors(s){
+ var groups={};s.errors.forEach(function(e){var k=e.tool+' - '+(e.error||'').slice(0,120);if(!groups[k])groups[k]={n:0,e:e};groups[k].n++});
+ var list=Object.keys(groups).map(function(k){return groups[k]}).sort(function(a,b){return b.n-a.n});
+ put('errsum',[el('div',{class:'card'},[el('h3',{text:'Most frequent recent errors'}),list.length?table(['Count','Tool','Message','How to fix'],list.slice(0,10).map(function(g){return [String(g.n),g.e.tool,g.e.error||'',g.e.hint||'']}),[0]):el('div',{class:'mut',text:'No errors recorded.'})])]);
+ put('errlist',s.errors.slice(0,25).map(function(e){return el('div',{class:'card'},[el('div',{},[badge('error','bad'),' ',el('b',{text:e.tool}),el('span',{class:'mut sm',text:'  '+e.client+'  -  '+new Date(e.ts).toLocaleString()+'  -  '+dur(e.ms)})]),el('pre',{text:e.error||''}),e.hint?el('div',{class:'attn warn'},[el('b',{text:'Fix: '}),e.hint]):null,e.args?el('div',{class:'mut sm',text:'args: '+e.args}):null,e.detail?el('pre',{text:e.detail}):null])}))}
+
+/* ---------- connect ---------- */
+var HOSTSTATE={configured:['ok','configured'],'node-missing':['bad','Node.js path missing - re-run installer'],'not-configured':['warn','installed, not configured'],'not-installed':['','not installed'],unreadable:['warn','config unreadable']};
+function renderConnect(s){
+ put('hosts',s.hosts.map(function(h){var x=HOSTSTATE[h.state]||['',h.state];return el('div',{},[dot(x[0]==='ok'?'ok':x[0]==='warn'?'warn':''),el('b',{text:h.name+': '}),x[1],el('span',{class:'mut sm',text:'  '+h.file})])}));
+ if(!CFG)return;
+ put('clients',CFG.clients.map(function(c){return el('button',{class:c.id===st.client?'on':'',onclick:function(){st.client=c.id;renderConnect(S)}},[c.title])}));
+ var c=CFG.clients.filter(function(x){return x.id===st.client})[0]||CFG.clients[0];var reveal=$('rev').checked;
+ var shown=c.text.split('__TOKEN__').join(reveal?T:'<your-token>');var real=c.text.split('__TOKEN__').join(T);
+ var btn=el('button',{text:'Copy'});btn.onclick=function(){copyText(real,btn)};
+ put('cfg',[el('div',{},[el('b',{text:c.title}),el('span',{class:'mut sm',text:'  put it in: '+c.where})]),el('pre',{text:shown}),btn,c.note?el('div',{class:'mut sm',style:'margin-top:8px',text:c.note}):null])}
+
+/* ---------- tools ---------- */
+function renderTools(s){if(!CFG)return;var q=$('tq').value.toLowerCase();var by={};s.byTool.forEach(function(t){by[t.name]=t});
+ var rows=CFG.tools.filter(function(t){return !q||(t.name+' '+t.description).toLowerCase().indexOf(q)>=0}).sort(function(a,b){return a.name<b.name?-1:1}).map(function(t){var x=by[t.name]||{calls:0,errors:0,avgMs:0};
+  return [el('span',{},[el('b',{text:t.name}),t.full?el('span',{class:'badge warn',text:'runs code',style:'margin-left:6px'}):null]),el('span',{class:'sm mut',text:t.description.length>200?t.description.slice(0,200)+'...':t.description}),String(x.calls),x.errors?badge(String(x.errors),'bad'):'0',x.calls?dur(x.avgMs):'-']});
+ $('toolnote').textContent=CFG.tools.length+' tools registered'+(s.env.mode==='safe'?' (safe mode: code-execution tools hidden)':'');
+ var tb=$('toolrows');while(tb.firstChild)tb.removeChild(tb.firstChild);rows.forEach(function(r){tb.appendChild(el('tr',{},r.map(function(c,i){return el('td',{class:i>1?'num':''},[c])})))})}
+
+/* ---------- diagnostics ---------- */
+function renderDiag(s){var e=s.env;
+ var rows=[['Server version',e.version],['Mode',e.mode],['Node.js',e.node+' ('+e.platform+')'],['Node path',e.nodePath],['Server script',e.script],['Dashboard / API','http://127.0.0.1:'+e.httpPort+'/'],['Plugin bridge','ws://127.0.0.1:'+e.bridgePort],['Data folder',e.dataDir],['Token file',e.tokenFile],['Audit log',e.auditLog]];
+ var box=$('env');while(box.firstChild)box.removeChild(box.firstChild);rows.forEach(function(r){box.appendChild(el('div',{text:r[0]}));box.appendChild(el('div',{text:r[1],style:'word-break:break-all'}))});
+ put('conn',s.conn.length?s.conn.map(function(c){return el('div',{},[dot(c.type==='connected'?'ok':''),clock(c.ts)+'  '+c.type,el('span',{class:'mut sm',text:c.detail?'  '+c.detail:''})])}):['No plugin connection events since the daemon started.'])}
+function runSelfTest(){var b=$('st');b.disabled=true;b.textContent='Running...';put('stout',['']);
+ api('/api/selftest').then(function(r){b.disabled=false;b.textContent='Run self-test';
+  put('stout',(r.steps||[]).map(function(x){return el('div',{style:'margin-bottom:6px'},[x.ok?badge('PASS','ok'):badge('FAIL','bad'),' ',el('b',{text:x.name}),el('span',{class:'mut sm',text:'  '+dur(x.ms)}),x.detail?el('div',{class:'mut sm',text:x.detail}):null,x.error?el('pre',{text:x.error}):null,x.hint?el('div',{class:'attn warn'},[el('b',{text:'Fix: '}),x.hint]):null])}));poll()}).catch(function(){b.disabled=false;b.textContent='Run self-test';put('stout',['Daemon unreachable.'])})}
+
+/* ---------- main loop ---------- */
+function render(){if(!S)return;
+ $('ver').textContent='v'+S.env.version;$('sub').textContent='Local control panel - daemon 127.0.0.1:'+S.env.httpPort+' - plugin bridge ws://127.0.0.1:'+S.env.bridgePort;
+ put('pills',[el('span',{class:'pill'},[dot('ok'),'daemon running']),el('span',{class:'pill'},[dot(S.status.connected?'ok':''),S.status.connected?'Photoshop connected':'Photoshop offline']),el('span',{class:'pill',text:S.summary.total+' calls / '+S.summary.errors+' errors'})]);
+ var f={overview:renderOverview,calls:renderCalls,errors:renderErrors,connect:renderConnect,tools:renderTools,diag:renderDiag}[st.tab];f(S)}
+function poll(){api('/api/stats').then(function(s){if(s.ok){var first=!S;S=s;render();if(first)pollDoc()}}).catch(function(){put('pills',[el('span',{class:'pill'},[dot(''),'daemon unreachable'])])})}
+$('pvb').onclick=function(){put('pv',['Rendering...']);api('/api/preview').then(function(r){if(!r.ok){put('pv',[el('div',{class:'attn warn'},[r.error||'error',r.hint?el('div',{class:'mut sm',text:r.hint}):null])]);return}var i=new Image();i.src='data:'+r.data.mimeType+';base64,'+r.data.data;put('pv',[i]);poll()})};
+$('q').oninput=function(){if(S)renderCalls(S)};$('eo').onchange=function(){if(S)renderCalls(S)};$('cf').onchange=function(){if(S)renderCalls(S)};$('tq').oninput=function(){if(S)renderTools(S)};$('rev').onchange=function(){if(S)renderConnect(S)};
+$('clr').onclick=function(){if(confirm('Clear the in-memory call history and statistics? (The audit log file is kept.)'))api('/api/clear').then(poll)};
+$('dl').onclick=function(){if(!S)return;var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S.calls,null,2)],{type:'application/json'}));a.download='photoshop-supreme-calls.json';document.body.appendChild(a);a.click();document.body.removeChild(a)};
+$('st').onclick=runSelfTest;
+buildTabs();showTab();api('/api/config').then(function(c){if(c.ok){CFG=c;render()}});poll();setInterval(poll,2000);pollDoc();setInterval(pollDoc,5000);
+`;
+function dashboardHtml(token, httpPort, bridgePort) {
+  const script = JS.replace('"__TOKEN__"', JSON.stringify(token));
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Photoshop Supreme MCP</title><style>${CSS}</style></head><body>${BODY}<script>${script}</script></body></html>`;
 }
 
 // src/daemon.ts
@@ -28540,10 +28973,27 @@ var json2 = (res, code, body) => {
   res.writeHead(code, { "Content-Type": "application/json", "Content-Length": Buffer.byteLength(p) });
   res.end(p);
 };
+var header = (req, name) => {
+  const v = req.headers[name];
+  if (!v) return void 0;
+  try {
+    return decodeURIComponent(String(v)).slice(0, 80);
+  } catch {
+    return String(v).slice(0, 80);
+  }
+};
+var errMsg = (e) => e instanceof Error ? e.message : String(e);
 async function runDaemon() {
-  const token = Buffer.from(ensureToken());
+  const tokenStr = ensureToken();
+  const token = Buffer.from(tokenStr);
   const bridge = new PhotoshopBridge(BRIDGE_PORT);
+  const telemetry = new Telemetry();
+  bridge.onPluginEvent = (type, detail) => telemetry.connection(type, detail);
   await bridge.start();
+  registerTools(new McpServer(SERVER_INFO), bridge);
+  const script = process.argv[1] ?? "";
+  const clientConfigs = buildClientConfigs(process.execPath, script, HTTP_PORT);
+  let hostsCache = { at: 0, value: [] };
   const hosts = /* @__PURE__ */ new Set([`127.0.0.1:${HTTP_PORT}`, `localhost:${HTTP_PORT}`]);
   const origins = /* @__PURE__ */ new Set([`http://127.0.0.1:${HTTP_PORT}`, `http://localhost:${HTTP_PORT}`]);
   const hostOk = (req) => hosts.has(String(req.headers.host ?? "").toLowerCase());
@@ -28555,6 +29005,79 @@ async function runDaemon() {
     const given = Buffer.from(h.slice(7));
     return given.length === token.length && timingSafeEqual(given, token);
   };
+  const seenClients = /* @__PURE__ */ new Map();
+  const httpClientLabel = (req, body) => {
+    const key = `${req.socket.remoteAddress ?? ""}|${req.headers["user-agent"] ?? ""}`;
+    const first = Array.isArray(body) ? body[0] : body;
+    const ci = first?.method === "initialize" ? first?.params?.clientInfo : void 0;
+    if (ci?.name) seenClients.set(key, `${ci.name}${ci.version ? "/" + ci.version : ""}`);
+    return seenClients.get(key) ?? String(req.headers["user-agent"] ?? "http client").slice(0, 60);
+  };
+  const dashCall = async (tool, fn, args) => {
+    const t0 = Date.now();
+    try {
+      const r = await fn();
+      telemetry.record({ source: "dashboard", client: "dashboard", tool, ms: Date.now() - t0, ok: true, args: summarizeArgs(args) });
+      return r;
+    } catch (e) {
+      telemetry.record({ source: "dashboard", client: "dashboard", tool, ms: Date.now() - t0, ok: false, error: errMsg(e), args: summarizeArgs(args) });
+      throw e;
+    }
+  };
+  async function selfTest() {
+    const steps = [];
+    const run = async (name, fn) => {
+      const t0 = Date.now();
+      try {
+        const detail = await fn();
+        steps.push({ name, ok: true, ms: Date.now() - t0, detail });
+        telemetry.record({ source: "dashboard", client: "dashboard", tool: "selftest: " + name, ms: Date.now() - t0, ok: true });
+        return true;
+      } catch (e) {
+        const m = errMsg(e);
+        steps.push({ name, ok: false, ms: Date.now() - t0, error: m, hint: hintFor(m) });
+        telemetry.record({ source: "dashboard", client: "dashboard", tool: "selftest: " + name, ms: Date.now() - t0, ok: false, error: m });
+        return false;
+      }
+    };
+    const connected = await run("Photoshop plugin connected", async () => {
+      const st = await bridge.status();
+      if (!st.connected) throw new Error("Photoshop plugin is not connected.");
+      return JSON.stringify(st.pluginInfo);
+    });
+    if (!connected) return steps;
+    await run("Round trip (5 pings)", async () => {
+      const t0 = Date.now();
+      for (let i = 0; i < 5; i++) await bridge.call("ping", {}, 1e4);
+      return `${Math.round((Date.now() - t0) / 5)} ms average`;
+    });
+    await run("Photoshop version", async () => {
+      const c = await bridge.call("capabilities", {}, 1e4);
+      return `Photoshop ${c.photoshop}, UXP ${c.uxp ?? "?"}, ${c.documents} document(s) open`;
+    });
+    await run("Read document state", async () => {
+      const s = await bridge.call("get_state", { depth: 1 }, 2e4);
+      return s.document ? `active: ${s.document.title} (${s.document.width}x${s.document.height})` : "no document open (that is fine)";
+    });
+    await run("Raw batchPlay (get application)", async () => {
+      const r = await bridge.call(
+        "batch_play",
+        { descriptors: [{ _obj: "get", _target: [{ _ref: "application", _enum: "ordinal", _value: "targetEnum" }], _options: { dialogOptions: "dontDisplay" } }], read_only: true },
+        2e4
+      );
+      return Array.isArray(r) && r[0] ? "descriptor returned" : "empty result";
+    });
+    await run("Script execution (needs allowCodeGenerationFromStrings)", async () => {
+      const r = await bridge.call("run_js", { code: "return 1 + 1;", read_only: true }, 2e4);
+      if (r !== 2) throw new Error("Unexpected result: " + JSON.stringify(r));
+      return "1 + 1 = 2";
+    });
+    await run("Modal edit rights (executeAsModal)", async () => {
+      const r = await bridge.call("run_js", { code: "return 'modal ok';", name: "Supreme: self-test" }, 3e4);
+      return String(r);
+    });
+    return steps;
+  }
   const http = createServer2(async (req, res) => {
     try {
       const path = (req.url ?? "/").split("?")[0];
@@ -28566,7 +29089,7 @@ async function runDaemon() {
           "X-Frame-Options": "DENY",
           "Content-Security-Policy": "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'"
         });
-        return void res.end(dashboardHtml(token.toString(), HTTP_PORT, BRIDGE_PORT));
+        return void res.end(dashboardHtml(tokenStr, HTTP_PORT, BRIDGE_PORT));
       }
       if (req.method === "GET" && path === "/favicon.ico") return void res.writeHead(204).end();
       if (req.method === "GET" && path === "/health") return json2(res, 200, { ok: true, name: SERVER_INFO.name });
@@ -28574,37 +29097,100 @@ async function runDaemon() {
       if (req.method !== "POST") return json2(res, 405, { ok: false, error: "Use POST" });
       const body = await readBody(req);
       if (path === "/rpc") {
+        const client = header(req, "x-pss-client") ?? "direct rpc";
+        const tool = header(req, "x-pss-tool") ?? "rpc:" + String(body.action);
+        const t0 = Date.now();
         try {
           const data = await bridge.call(String(body.action), body.params ?? {}, Number(body.timeoutMs) || 12e4);
+          telemetry.record({ source: "stdio", client, tool, ms: Date.now() - t0, ok: true, args: summarizeArgs(body.params?.args ?? body.params) });
           return json2(res, 200, { ok: true, data });
         } catch (e) {
-          return json2(res, 200, { ok: false, error: e instanceof Error ? e.message : String(e) });
+          telemetry.record({
+            source: "stdio",
+            client,
+            tool,
+            ms: Date.now() - t0,
+            ok: false,
+            error: errMsg(e),
+            detail: e?.pluginStack ? String(e.pluginStack).slice(0, 600) : void 0,
+            args: summarizeArgs(body.params?.args ?? body.params)
+          });
+          return json2(res, 200, { ok: false, error: errMsg(e) });
         }
       }
       if (path === "/status") return json2(res, 200, { ok: true, data: await bridge.status() });
       if (path === "/events") return json2(res, 200, { ok: true, data: await bridge.drainEvents(body) });
       if (path === "/mcp") {
+        const label = httpClientLabel(req, body);
         const server = new McpServer(SERVER_INFO, { instructions: INSTRUCTIONS });
-        registerTools(server, bridge);
+        registerTools(server, bridge, { onCall: (e) => telemetry.record({ source: "http", ...e }) });
         const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: void 0 });
         res.on("close", () => {
           void transport.close();
           void server.close();
         });
         await server.connect(transport);
-        await transport.handleRequest(req, res, body);
+        await callContext.run({ client: label }, () => transport.handleRequest(req, res, body));
         return;
+      }
+      if (path === "/api/stats") {
+        const st = await bridge.status();
+        if (Date.now() - hostsCache.at > 5e3) hostsCache = { at: Date.now(), value: detectHosts() };
+        return json2(res, 200, {
+          ok: true,
+          now: Date.now(),
+          status: st,
+          ...telemetry.snapshot(),
+          hosts: hostsCache.value,
+          env: {
+            version: SERVER_INFO.version,
+            node: process.version,
+            platform: process.platform,
+            pid: process.pid,
+            nodePath: process.execPath,
+            script,
+            dataDir: DATA_DIR,
+            tokenFile: join7(DATA_DIR, "token"),
+            auditLog: join7(DATA_DIR, "calls.jsonl"),
+            httpPort: HTTP_PORT,
+            bridgePort: BRIDGE_PORT,
+            mode: FULL ? "full" : "safe"
+          }
+        });
+      }
+      if (path === "/api/config") {
+        return json2(res, 200, { ok: true, clients: clientConfigs, tools: [...toolCatalog.values()] });
+      }
+      if (path === "/api/state") {
+        try {
+          return json2(res, 200, { ok: true, data: await bridge.call("get_state", { depth: 3 }, 2e4) });
+        } catch (e) {
+          return json2(res, 200, { ok: false, error: errMsg(e), hint: hintFor(errMsg(e)) });
+        }
+      }
+      if (path === "/api/preview") {
+        try {
+          const data = await dashCall("dashboard: preview", () => bridge.call("preview", { max_dim: 900 }, 12e4));
+          return json2(res, 200, { ok: true, data });
+        } catch (e) {
+          return json2(res, 200, { ok: false, error: errMsg(e), hint: hintFor(errMsg(e)) });
+        }
+      }
+      if (path === "/api/selftest") return json2(res, 200, { ok: true, steps: await selfTest() });
+      if (path === "/api/clear") {
+        telemetry.clear();
+        return json2(res, 200, { ok: true });
       }
       json2(res, 404, { ok: false, error: "Not found" });
     } catch (e) {
-      if (!res.headersSent) json2(res, 500, { ok: false, error: e instanceof Error ? e.message : String(e) });
+      if (!res.headersSent) json2(res, 500, { ok: false, error: errMsg(e) });
     }
   });
   await new Promise((resolve, reject) => {
     http.once("error", reject);
     http.listen(HTTP_PORT, "127.0.0.1", resolve);
   });
-  log(`daemon ready \u2014 bridge ws://127.0.0.1:${BRIDGE_PORT}, api http://127.0.0.1:${HTTP_PORT}`);
+  log(`daemon ready \u2014 bridge ws://127.0.0.1:${BRIDGE_PORT}, dashboard http://127.0.0.1:${HTTP_PORT}/`);
   const stop = () => {
     bridge.close();
     http.close();

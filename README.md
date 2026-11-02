@@ -27,8 +27,37 @@ daemon by itself (no panel to open). If either app was already running, restart 
 
 Flags: `--silent` (no message box), `--use-cc` (prefer Creative Cloud's installer for the plugin), `--uninstall`.
 
-**Web UI:** open <http://127.0.0.1:38461/> any time: daemon + plugin status, active document and layer tree, live preview, and fixes if Photoshop isn't connected.
-(Served only to `127.0.0.1`/`localhost` hosts; other sites and DNS-rebinding are blocked.)
+## Dashboard - `http://127.0.0.1:38461/`
+
+| Tab | What you get |
+| --- | --- |
+| **Overview** | Health summary with "needs attention" items, plugin status + Photoshop version, total calls, success rate, avg/p95 latency, uptime, calls-per-minute chart, **who is calling** (per AI app), busiest tools, active document + layer tree + live preview |
+| **Calls** | Every call: time, **client** (e.g. `Claude Desktop/1.x`, `cursor-vscode/..`), tool, duration, ok/error. Click a row for arguments, error text, the suggested fix and the plugin stack. Filter by text/client/errors-only; download JSON; clear history |
+| **Errors** | Most frequent errors, each with a plain-language **how to fix** (plugin not connected, dialog open, timeout, stale layer id, missing permission...) |
+| **Connect AI apps** | Detects Claude Desktop / Cursor config state, and shows **ready-to-copy config** (using the exact Node + server paths) for Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Cline/Roo, Gemini CLI, Codex CLI, any HTTP-capable client, plus what ChatGPT needs and why it is not recommended |
+| **Tools** | All registered tools with description, call count, errors, avg time; flags the ones that execute code |
+| **Diagnostics** | One-click **self-test** (plugin link, round-trip speed, Photoshop version, document read, raw batchPlay, script permission, modal rights), environment/paths/ports/mode, plugin connect/disconnect history |
+
+Who is calling: stdio apps (Claude Desktop, Cursor, ...) report the name/version they announce when they connect; HTTP clients are identified from their
+`initialize` message or User-Agent. Every call is also appended to an audit log `~/.photoshop-supreme-mcp/calls.jsonl` (tool, client, duration, result, truncated arguments; auto-rotated at 5 MB).
+The page is served only to `127.0.0.1`/`localhost` hosts (other sites and DNS-rebinding are blocked); all displayed text is inserted safely (no HTML injection from layer names or error messages).
+
+### Config for each AI app (also shown, with your real paths, on the Connect tab)
+
+| App | Where | Shape |
+| --- | --- | --- |
+| Claude Desktop | `%APPDATA%\Claude\claude_desktop_config.json` | `mcpServers` -> `{command, args}` (installer does this) |
+| Claude Code | terminal | `claude mcp add photoshop-supreme -- <node> <supreme.mjs>` |
+| Cursor | `~\.cursor\mcp.json` | `mcpServers` (installer does this) |
+| VS Code | `.vscode/mcp.json` | `servers` -> `{type:"stdio", command, args}` |
+| Windsurf | `~\.codeium\windsurf\mcp_config.json` | `mcpServers` |
+| Cline / Roo | MCP Servers panel | `mcpServers` (+ `disabled`, `autoApprove`) |
+| Gemini CLI | `~\.gemini\settings.json` | `mcpServers` |
+| Codex CLI | `~\.codex\config.toml` | `[mcp_servers.photoshop-supreme]` |
+| HTTP clients | client setting | `http://127.0.0.1:38461/mcp` + `Authorization: Bearer <token>` |
+| ChatGPT | - | needs a public **HTTPS** remote server; cannot run local stdio or reach localhost. Not recommended (would expose Photoshop + files). |
+
+Config formats follow each app's documented conventions as of my knowledge; check the app's docs if one rejects a snippet.
 
 ### Building the installer
 

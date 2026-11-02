@@ -1,4 +1,5 @@
 import type { Bridge, BridgeEvent } from './bridge.js';
+import { callContext } from './context.js';
 
 /** Talks to the already-running daemon over its authenticated localhost HTTP API. */
 export class RemoteBridge implements Bridge {
@@ -11,7 +12,17 @@ export class RemoteBridge implements Bridge {
   private async post<T>(path: string, body: unknown, timeoutMs: number): Promise<T> {
     const r = await fetch(this.base + path, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + this.token },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + this.token,
+        ...(() => {
+          const c = callContext.getStore();
+          const h: Record<string, string> = {};
+          if (c?.client) h['X-PSS-Client'] = encodeURIComponent(c.client);
+          if (c?.tool) h['X-PSS-Tool'] = encodeURIComponent(c.tool);
+          return h;
+        })(),
+      },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs),
     });
