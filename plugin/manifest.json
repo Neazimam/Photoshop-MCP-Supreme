@@ -1,7 +1,7 @@
 {
   "id": "com.eagle.photoshop-supreme-mcp",
   "name": "Photoshop Supreme MCP",
-  "version": "0.2.2",
+  "version": "0.9.0",
   "main": "index.html",
   "manifestVersion": 5,
   "host": {

@@ -30,7 +30,9 @@ export function hintFor(msg: string): string | undefined {
     return 'Photoshop plugin is not connected. Start (or restart) Photoshop - the plugin loads at startup. Check Overview and run the self-test.';
   if (m.includes('disconnected mid-call')) return 'Photoshop closed or the plugin reloaded during the call. Retry once Photoshop is back.';
   if (m.includes('code generation') || m.includes('evalerror') || m.includes('unsafe-eval') || m.includes('allowcodegeneration'))
-    return 'The plugin manifest must allow code from strings (allowCodeGenerationFromStrings). Re-run the installer to get plugin v0.2.2+.';
+    return 'The plugin manifest must allow code from strings (allowCodeGenerationFromStrings). Re-run the installer to get plugin v0.3.0++.';
+  if (m.includes('newdocumentfill') || m.includes("'transparent'") || m.includes("'white'"))
+    return "This Photoshop build's installed plugin predates the version-safe document creator (fixed in plugin v0.9.0). Re-run the latest PhotoshopSupremeMCP-Setup.exe — it refreshes the plugin — then restart Photoshop.";
   if (m.includes('did not respond') || m.includes('timeout') || m.includes('timed out'))
     return 'Photoshop did not answer in time. A dialog may be open, or the job is long - close dialogs or raise timeout_ms.';
   if (m.includes('modal') && (m.includes('already') || m.includes('state')))

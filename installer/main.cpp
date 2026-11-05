@@ -5,6 +5,8 @@
 //   PhotoshopSupremeMCP-Setup.exe --silent    same as install but without the final message box
 //   PhotoshopSupremeMCP-Setup.exe --use-cc    install the Photoshop plugin through Creative Cloud (UPIA) instead of directly
 //   PhotoshopSupremeMCP.exe --daemon          (internal) hidden watchdog that keeps the MCP daemon alive
+//                                              and hot-restarts it whenever files in server\ change
+//                                              (drop a new supreme.mjs in and it is live within seconds).
 //
 // BUILD AS A WINDOWS-SUBSYSTEM APP so no console flashes:
 //   Visual Studio: Project > Properties > Linker > System > SubSystem = Windows (/SUBSYSTEM:WINDOWS)
@@ -582,9 +584,32 @@ static int daemonMain() {
       std::vector<wchar_t> buf(cmd.begin(), cmd.end());
       buf.push_back(0);
       if (CreateProcessW(nullptr, buf.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr, dir.c_str(), &si, &pi)) {
-        WaitForSingleObject(pi.hProcess, INFINITE);
+        // Wait on the node process AND on change notifications for the server folder:
+        // when the installer or the user replaces supreme.mjs, restart the daemon so the
+        // new build goes live without touching the watchdog or the auto-start entry.
+        HANDLE change = FindFirstChangeNotificationW((dir / L"server").c_str(), FALSE,
+                                                     FILE_NOTIFY_CHANGE_LAST_WRITE | FILE_NOTIFY_CHANGE_FILE_NAME |
+                                                         FILE_NOTIFY_CHANGE_SIZE);
+        bool hot = false;
+        for (;;) {
+          HANDLE waits[2] = {pi.hProcess, change};
+          DWORD n = (change != INVALID_HANDLE_VALUE) ? 2 : 1;
+          DWORD w = WaitForMultipleObjects(n, waits, FALSE, 10000);
+          if (w == WAIT_OBJECT_0) break;  // node exited on its own
+          if (w == WAIT_OBJECT_0 + 1) {   // server files changed -> hot restart
+            FindNextChangeNotification(change);
+            Sleep(1500);  // let the file copy finish
+            TerminateProcess(pi.hProcess, 0);
+            WaitForSingleObject(pi.hProcess, 15000);
+            hot = true;
+            break;
+          }
+          // WAIT_TIMEOUT or failed wait: loop and wait again
+        }
+        if (change != INVALID_HANDLE_VALUE) FindCloseChangeNotification(change);
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
+        if (hot) delay = 500;  // a hot restart is healthy - do not treat it as a crash loop
       }
     }
     // Back off if it keeps dying immediately (e.g. port already taken).

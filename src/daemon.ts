@@ -12,6 +12,7 @@ import { callContext } from './context.js';
 import { buildClientConfigs } from './clientconfigs.js';
 import { detectHosts } from './hosts.js';
 import { dashboardHtml } from './dashboard.js';
+import { convertHtmlToSpec, prepareSpecImages, slimHtmlForConvert, type SpecNode } from './htmlconvert.js';
 import { log } from './log.js';
 
 function readBody(req: IncomingMessage, limit = 80 * 1024 * 1024): Promise<any> {
@@ -56,6 +57,32 @@ const header = (req: IncomingMessage, name: string): string | undefined => {
 };
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : String(e));
+
+interface TreeRow { n: string; k: string; x: number; y: number; w: number; h: number; c?: TreeRow[] }
+/** Compact layer blueprint of a spec: what the plugin will build, names + rects, depth-capped. */
+function specTree(nodes: readonly SpecNode[], budget: { left: number } = { left: 80 }, depth = 0): TreeRow[] {
+  const out: TreeRow[] = [];
+  for (const nd of nodes) {
+    if (budget.left <= 0) {
+      out.push({ n: '… more layers below', k: 'more', x: 0, y: 0, w: 0, h: 0 });
+      break;
+    }
+    budget.left--;
+    const row: TreeRow = {
+      n: nd.name,
+      k: nd.kind,
+      x: Math.round(nd.rect.x),
+      y: Math.round(nd.rect.y),
+      w: Math.round(nd.rect.w),
+      h: Math.round(nd.rect.h),
+    };
+    if (depth < 3 && Array.isArray(nd.children) && nd.children.length) {
+      row.c = specTree(nd.children as SpecNode[], budget, depth + 1);
+    }
+    out.push(row);
+  }
+  return out;
+}
 
 /** Long-running process: owns the Photoshop WebSocket bridge and serves any number of MCP clients + the dashboard. */
 export async function runDaemon(): Promise<void> {
@@ -171,7 +198,8 @@ export async function runDaemon(): Promise<void> {
           'Content-Type': 'text/html; charset=utf-8',
           'Cache-Control': 'no-store',
           'X-Frame-Options': 'DENY',
-          'Content-Security-Policy': "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'self'",
+          'Content-Security-Policy':
+            "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob: https: http:; connect-src 'self'; frame-src blob:",
         });
         return void res.end(dashboardHtml(tokenStr, HTTP_PORT, BRIDGE_PORT));
       }
@@ -263,6 +291,97 @@ export async function runDaemon(): Promise<void> {
           return json(res, 200, { ok: true, data });
         } catch (e) {
           return json(res, 200, { ok: false, error: errMsg(e), hint: hintFor(errMsg(e)) });
+        }
+      }
+      if (path === '/api/convert') {
+        const fail = (error: string, hint?: string) =>
+          json(res, 200, { ok: false, error, hint, serverVersion: SERVER_INFO.version });
+        const html0 = typeof body.html === 'string' ? body.html : '';
+        const filename = typeof body.filename === 'string' && body.filename.trim() ? body.filename.trim() : undefined;
+        const target = body.target === 'active' ? 'active' : 'new';
+        const scale = Math.min(Math.max(Number(body.scale) || 1, 0.1), 8);
+        const groupName = typeof body.name === 'string' && body.name.trim() ? body.name.trim().slice(0, 64) : undefined;
+        const dim = (v: unknown): number | undefined => {
+          const n = Math.round(Number(v));
+          return Number.isFinite(n) && n >= 16 ? Math.min(n, 300000) : undefined;
+        };
+        const docW = dim(body.docW);
+        const docH = dim(body.docH);
+        if (!html0.trim()) return fail('No HTML provided.');
+        // Upload budget. Files over SOFT are almost always AI pages with huge embedded base64 photos;
+        // only the largest of those get auto-slimmed instead of failing; HARD is a hard stop.
+        const SOFT = 12_000_000;
+        const KEEP = 1_500_000; // embedded images up to 1.5 MB always keep their real pixels
+        const HARD = 25_000_000;
+        const mb = (n: number) => (n / 1e6).toFixed(1) + ' MB';
+        const sizeWarnings: string[] = [];
+        let html = html0;
+        if (html.length > HARD) {
+          const slim = slimHtmlForConvert(html, HARD, KEEP);
+          html = slim.html;
+        }
+        if (html.length > HARD) {
+          return fail(
+            `HTML too large: ${mb(html0.length)} (limit ${mb(HARD)}).`,
+            'Pages this big usually embed many base64 photos. Export images as separate files and reference them by path instead, or split the page.'
+          );
+        }
+        if (html.length > SOFT) {
+          const slim = slimHtmlForConvert(html, SOFT, KEEP);
+          if (slim.replaced > 0) {
+            html = slim.html;
+            sizeWarnings.push(
+              `File was ${mb(html0.length)} — ${slim.replaced} embedded image(s) over ${mb(KEEP)} were swapped for placeholders so it could convert. Reference smaller or external images to keep the real pixels.`
+            );
+          }
+        }
+        try {
+          const spec = convertHtmlToSpec(html, { sourcePath: filename, scale, docW, docH });
+          await prepareSpecImages(spec);
+          const timeout = Math.min(600_000, 120_000 + spec.stats.images * 30_000 + spec.stats.nodes * 150);
+          const data = (await dashCall('dashboard: convert html', () =>
+            bridge.call('html_layers', { spec, target, group_name: groupName }, timeout))) as Record<string, unknown>;
+          // the plugin echoes the incoming spec warnings back — dedupe so nothing appears twice
+          const warnings = [...new Set([...sizeWarnings, ...spec.warnings, ...((data.warnings as string[]) ?? [])])];
+          return json(res, 200, {
+            ok: true,
+            data: { ...data, canvas: spec.canvas, stats: spec.stats, warnings, slimmed: sizeWarnings.length > 0, serverVersion: SERVER_INFO.version },
+          });
+        } catch (e) {
+          return fail(errMsg(e), hintFor(errMsg(e)));
+        }
+      }
+      if (path === '/api/analyze') {
+        // Layer blueprint: parse + layout ONLY, never touches Photoshop. Powers the live
+        // "What will become layers" tree so users see the plan before committing a convert.
+        const fail = (error: string, hint?: string) =>
+          json(res, 200, { ok: false, error, hint, serverVersion: SERVER_INFO.version });
+        const html = typeof body.html === 'string' ? body.html : '';
+        if (!html.trim()) {
+          return json(res, 200, { ok: true, data: { tree: [], canvas: null, stats: { nodes: 0, images: 0 }, warnings: [], serverVersion: SERVER_INFO.version } });
+        }
+        if (html.length > 5_000_000) {
+          return fail(`Too large to plan live (${(html.length / 1e6).toFixed(1)} MB). It can still convert — press "Convert to layers".`);
+        }
+        const scale = Math.min(Math.max(Number(body.scale) || 1, 0.1), 8);
+        const dim = (v: unknown): number | undefined => {
+          const n = Math.round(Number(v));
+          return Number.isFinite(n) && n >= 16 ? Math.min(n, 300000) : undefined;
+        };
+        try {
+          const spec = convertHtmlToSpec(html, { scale, docW: dim(body.docW), docH: dim(body.docH) });
+          return json(res, 200, {
+            ok: true,
+            data: {
+              tree: specTree(spec.elements),
+              canvas: { w: spec.canvas.w, h: spec.canvas.h },
+              stats: spec.stats,
+              warnings: spec.warnings.slice(0, 4),
+              serverVersion: SERVER_INFO.version,
+            },
+          });
+        } catch (e) {
+          return fail(errMsg(e), hintFor(errMsg(e)));
         }
       }
       if (path === '/api/selftest') return json(res, 200, { ok: true, steps: await selfTest() });
